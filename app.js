@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 const port = process.env.port || 5000;
@@ -14,10 +16,7 @@ app.use(bodyParser.json());
 
 app.listen(port, () => console.log(`listening on ${port}`));
 
-const DATABASE_URL =
-  'mysql://96x5un9emmsz4mv0atxf:pscale_pw_fwYBlVVlcsCeRq4mDAyz0osonf0D0xQ95Vx1auKwAkh@aws.connect.psdb.cloud/my_library?ssl={"rejectUnauthorized":true}';
-
-const connection = mysql.createConnection(DATABASE_URL);
+const connection = mysql.createConnection(process.env.DB_URL);
 
 const splitOnce = (str, on) => {
   [first, ...rest] = str.split(on);
@@ -41,12 +40,10 @@ const buildWhere = (query) => {
 const getRecords = (req, res, name) => {
   try {
     const conditions = buildWhere(req.query);
-
     connection.query(
       `SELECT * FROM \`${name}\` WHERE ${conditions.where}`,
       conditions.values,
       (err, rows) => {
-        connection.release();
         if (!err) {
           res.status(200).json({ data: rows });
         } else {
@@ -62,15 +59,13 @@ const getRecords = (req, res, name) => {
 const createRecord = (req, res, name) => {
   try {
     const values = req.body;
-
-    connection.query(`INSERT INTO ${name} SET ?`, values, (err, rows) => {
-      connection.release();
+    connection.query(`INSERT INTO \`${name}\` SET ?`, values, (err, rows) => {
       if (!err) {
         res.status(200).json({
           message: `${name} з даними ${JSON.stringify(values)} створено`,
         });
       } else {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: err });
       }
     });
   } catch (_err) {
@@ -80,17 +75,15 @@ const createRecord = (req, res, name) => {
 
 const deleteRecord = (req, res, name, pk) => {
   try {
-    const conditions = pk.map((key) => `${key} = ?`);
+    const conditions = pk.map((key) => `\`${key}\` = ?`);
     const params = [];
     for (i = 0; i < pk.length; i++) {
       params.push(req.params[`pk${i}`]);
     }
-
     connection.query(
-      `DELETE FROM ${name} WHERE ${conditions.join(' AND ')}`,
+      `DELETE FROM \`${name}\` WHERE ${conditions.join(' AND ')};`,
       params,
       (err, _) => {
-        connection.release();
         if (!err) {
           res.status(200).json({
             message: `${name} з ключами [${pk}] = [${params}] видалено`,
