@@ -1,0 +1,40 @@
+POST http://localhost:5000/create/books/
+Content-Type: application/json
+
+{
+  "шифр": 1510,
+  "назва": "тест",
+  "автор": "Тест тест", 
+  "рік_видання": 1990,
+  "ціна": 500,
+  "кількість": 30,
+  "код_видавництва": 1
+}
+###
+
+DELETE http://localhost:5000/delete/books/2000&1
+###
+
+POST http://localhost:5000/create/readers/
+Content-Type: application/json
+
+{
+  "код": 1510,
+  "ініціали": "тест",
+  "адреса": "Тест тест", 
+  "телефон": "1"
+}
+###
+
+POST http://localhost:5000/create/borrowings/
+Content-Type: application/json
+
+{
+  "дата": "2022-05-10",
+  "розпис": "тест",
+  "код_читача": "1510"
+}
+
+###
+DELETE http://localhost:5000/delete/borrowings/1510
+###
