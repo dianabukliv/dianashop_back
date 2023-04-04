@@ -98,6 +98,10 @@ const deleteRecord = (req, res, name, pk) => {
   }
 };
 
+app.get('/', (req, res) => {
+  res.send('Hey this is my API running 🥳');
+});
+
 app.get('/borrowings/', (req, res) => {
   getRecords(req, res, 'Видачі');
 });
@@ -145,3 +149,5 @@ app.post('/create/productions/', (req, res) => {
 app.delete('/delete/productions/:pk0', (req, res) => {
   deleteRecord(req, res, 'Видавництва', ['код']);
 });
+
+module.export = app;
